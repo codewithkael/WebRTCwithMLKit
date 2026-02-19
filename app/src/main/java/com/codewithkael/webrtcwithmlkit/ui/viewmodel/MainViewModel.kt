@@ -215,6 +215,10 @@ class MainViewModel @Inject constructor(
 
     fun switchCamera() = webRTCFactory.switchCamera()
 
+    fun reloadFilters() {
+        webRTCFactory.reloadFiltersConfig()
+    }
+
     override fun onCleared() {
         super.onCleared()
         remoteSurface?.release()

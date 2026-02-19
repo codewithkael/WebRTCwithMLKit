@@ -15,16 +15,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.codewithkael.webrtcwithmlkit.ui.components.CallControlsSection
+import com.codewithkael.webrtcwithmlkit.ui.components.FiltersDialog
 import com.codewithkael.webrtcwithmlkit.ui.components.FooterSection
 import com.codewithkael.webrtcwithmlkit.ui.components.TopBarSection
 import com.codewithkael.webrtcwithmlkit.ui.components.VideoStageSection
+import com.codewithkael.webrtcwithmlkit.ui.states.rememberFiltersUiState
 import com.codewithkael.webrtcwithmlkit.ui.viewmodel.MainViewModel
+import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
 
 @Composable
 fun MainScreen() {
@@ -32,6 +36,10 @@ fun MainScreen() {
     val viewModel: MainViewModel = hiltViewModel()
     val callState by viewModel.callState.collectAsState()
     val context = LocalContext.current
+
+    val filtersState = rememberFiltersUiState(
+        initial = remember { FilterStorage.load(context) }
+    )
 
     // ---------- Permissions ----------
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -65,6 +73,11 @@ fun MainScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.8f),
+            onOpenFilters = {
+                filtersState.reloadFromStorage(context)
+                filtersState.showDialog = true
+            },
+            switchCamera = { viewModel.switchCamera() }
         )
         CallControlsSection(
             modifier = Modifier
@@ -98,6 +111,17 @@ fun MainScreen() {
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = 5.dp, vertical = 10.dp)
+        )
+    }
+    if (filtersState.showDialog) {
+        FiltersDialog(
+            state = filtersState,
+            onCancel = { filtersState.showDialog = false },
+            onSave = { cfg ->
+                FilterStorage.save(context, cfg)
+                viewModel.reloadFilters()
+                filtersState.showDialog = false
+            }
         )
     }
 }

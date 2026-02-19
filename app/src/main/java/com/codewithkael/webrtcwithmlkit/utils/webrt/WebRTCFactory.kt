@@ -2,11 +2,21 @@ package com.codewithkael.webrtcwithmlkit.utils.webrt
 
 import android.app.Application
 import android.content.Context
+import android.graphics.Bitmap
 import com.codewithkael.webrtcwithmlkit.utils.MyApplication
+import com.codewithkael.webrtcwithmlkit.utils.helpers.BitmapToVideoFrameConverter
+import com.codewithkael.webrtcwithmlkit.utils.helpers.YuvFrame
+import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.VideoEffectsPipeline
+import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
 import com.codewithkael.webrtcwithmlkit.utils.webrt.IceServers.Companion.getIceServers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.webrtc.AudioTrack
 import org.webrtc.Camera2Enumerator
 import org.webrtc.CameraVideoCapturer
+import org.webrtc.CapturerObserver
 import org.webrtc.DefaultVideoDecoderFactory
 import org.webrtc.DefaultVideoEncoderFactory
 import org.webrtc.EglBase
@@ -15,6 +25,7 @@ import org.webrtc.PeerConnection
 import org.webrtc.PeerConnectionFactory
 import org.webrtc.SurfaceTextureHelper
 import org.webrtc.SurfaceViewRenderer
+import org.webrtc.VideoFrame
 import org.webrtc.VideoTrack
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,11 +47,22 @@ class WebRTCFactory @Inject constructor(
     private var localAudioTrack: AudioTrack? = null
     private var localVideoTrack: VideoTrack? = null
 
-
     private val iceServer = getIceServers()
+
+    // ===== Effects pipeline =====
+    private val effectsPipeline = VideoEffectsPipeline()
+
+    // ===== Filters config (reloaded from prefs) =====
+    @Volatile private var filterTextRecognition: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
+    }
+
+    //image processing section
+    fun reloadFiltersConfig() {
+        val cfg = FilterStorage.load(application)
+        filterTextRecognition = cfg.textRecognition
     }
 
     // Public API
@@ -81,6 +103,7 @@ class WebRTCFactory @Inject constructor(
 
         localVideoTrack?.dispose()
         localVideoTrack = null
+        effectsPipeline.close()
     }
 
     private fun startLocalVideo(surface: SurfaceViewRenderer) {
@@ -90,7 +113,29 @@ class WebRTCFactory @Inject constructor(
         videoCapture = getVideoCapture()
 
         videoCapture?.initialize(
-            surfaceTextureHelper, surface.context, localVideoSource.capturerObserver
+            surfaceTextureHelper,
+            surface.context,
+            object : CapturerObserver {
+                override fun onCapturerStarted(success: Boolean) {}
+                override fun onCapturerStopped() {}
+
+                override fun onFrameCaptured(frame: VideoFrame) {
+                    val yuv = YuvFrame(frame, YuvFrame.PROCESSING_NONE, frame.timestampNs)
+                    val bitmap = yuv.bitmap ?: return
+
+                    CoroutineScope(Dispatchers.Default).launch {
+                        val processed = runEffects(bitmap)
+                        val videoFrame = BitmapToVideoFrameConverter.convert(
+                            processed,
+                            0,
+                            System.nanoTime()
+                        )
+                        withContext(Dispatchers.Main) {
+                            localVideoSource.capturerObserver.onFrameCaptured(videoFrame)
+                        }
+                    }
+                }
+            }
         )
 
         videoCapture?.startCapture(720, 480, 10)
@@ -101,6 +146,16 @@ class WebRTCFactory @Inject constructor(
 
         localAudioTrack =
             peerConnectionFactory.createAudioTrack("${streamId}_audio", localAudioSource)
+    }
+
+    private suspend fun runEffects(input: Bitmap): Bitmap {
+
+        return effectsPipeline.process(
+            input = input,
+            enabled = VideoEffectsPipeline.Enabled(
+                textRecognition = filterTextRecognition
+            )
+        )
     }
 
     fun switchCamera() {

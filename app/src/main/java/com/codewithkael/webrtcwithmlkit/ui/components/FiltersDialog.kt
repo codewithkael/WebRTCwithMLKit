@@ -1,0 +1,53 @@
+package com.codewithkael.webrtcwithmlkit.ui.components
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.codewithkael.webrtcwithmlkit.R
+import com.codewithkael.webrtcwithmlkit.ui.states.FiltersUiState
+import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
+
+@Composable
+fun FiltersDialog(
+    state: FiltersUiState, onCancel: () -> Unit, onSave: (FilterStorage.Config) -> Unit
+) {
+    val scroll = rememberScrollState()
+
+    AlertDialog(onDismissRequest = onCancel, title = { Text("Filters") }, text = {
+        Column(
+            modifier = Modifier
+                .heightIn(max = 420.dp)
+                .verticalScroll(scroll),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+
+
+            FilterTile(
+                title = "Text Recognition (OCR)",
+                subtitle = "Detect & draw text (ML Kit v2)",
+                checked = state.textRecognition,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.textRecognition = it }
+            )
+        }
+    }, confirmButton = {
+        Button(onClick = {
+            onSave(
+                FilterStorage.Config(
+                    textRecognition = state.textRecognition
+                )
+            )
+        }) { Text("OK") }
+    }, dismissButton = {
+        TextButton(onClick = onCancel) { Text("Cancel") }
+    })
+}

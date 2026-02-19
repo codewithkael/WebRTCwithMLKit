@@ -66,6 +66,11 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.database.ktx)
 
+    //YuvConvert + YuvFormat
+    implementation(files("libs/core-0.0.7.aar"))
+    //mlkit libraries
+    implementation(libs.mlkit.text.recognition)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
