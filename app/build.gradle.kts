@@ -59,6 +59,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.material.icons.extended)
+
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
