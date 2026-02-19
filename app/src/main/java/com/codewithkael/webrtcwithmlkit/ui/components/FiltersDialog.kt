@@ -44,6 +44,15 @@ fun FiltersDialog(
                 checked = state.watermark,
                 imageRes = R.drawable.ic_watermark_filter,
                 onToggle = { state.watermark = it })
+
+            FilterTile(
+                title = "Face Detect",
+                subtitle = "Draw face oval (ML Kit)",
+                checked = state.faceDetect,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.faceDetect = it }
+            )
+
         }
     }, confirmButton = {
         Button(onClick = {
@@ -51,6 +60,7 @@ fun FiltersDialog(
                 FilterStorage.Config(
                     textRecognition = state.textRecognition,
                     watermark = state.watermark,
+                    faceDetect = state.faceDetect,
                     )
             )
         }) { Text("OK") }

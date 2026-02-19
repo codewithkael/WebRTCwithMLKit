@@ -6,11 +6,12 @@ class VideoEffectsPipeline {
 
     private val textRecognition = TextRecognitionEffect()
     private val watermark = WatermarkEffect()
-
+    private val faceOval = FaceOvalEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
         val watermark: Boolean,
+        val faceDetect: Boolean,
     )
 
     data class WatermarkParams(
@@ -39,10 +40,13 @@ class VideoEffectsPipeline {
                 )
             )
         }
+        if (enabled.faceDetect) out = faceOval.apply(out)
+
         return out
     }
 
     fun close() {
         textRecognition.close()
+        faceOval.close()
     }
 }

@@ -13,11 +13,13 @@ class FiltersUiState(initial: FilterStorage.Config) {
 
     var textRecognition by mutableStateOf(initial.textRecognition)
     var watermark by mutableStateOf(initial.watermark)
+    var faceDetect by mutableStateOf(initial.faceDetect)
 
     fun reloadFromStorage(context: Context) {
         val cfg = FilterStorage.load(context)
         textRecognition = cfg.textRecognition
         watermark = cfg.watermark
+        faceDetect = cfg.faceDetect
 
     }
 }

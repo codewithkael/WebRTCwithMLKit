@@ -70,6 +70,8 @@ dependencies {
     implementation(files("libs/core-0.0.7.aar"))
     //mlkit libraries
     implementation(libs.mlkit.text.recognition)
+    implementation(libs.face.detection)
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

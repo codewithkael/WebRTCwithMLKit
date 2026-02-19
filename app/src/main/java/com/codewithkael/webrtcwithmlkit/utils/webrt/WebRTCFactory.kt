@@ -67,6 +67,7 @@ class WebRTCFactory @Inject constructor(
     // ===== Filters config (reloaded from prefs) =====
     @Volatile private var filterTextRecognition: Boolean = false
     @Volatile private var filterWatermark: Boolean = false
+    @Volatile private var filterFaceDetect: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
@@ -79,6 +80,7 @@ class WebRTCFactory @Inject constructor(
         val cfg = FilterStorage.load(application)
         filterTextRecognition = cfg.textRecognition
         filterWatermark = cfg.watermark
+        filterFaceDetect = cfg.faceDetect
     }
 
     fun reloadWatermarkConfig() {
@@ -178,6 +180,7 @@ class WebRTCFactory @Inject constructor(
             input = input, enabled = VideoEffectsPipeline.Enabled(
                 textRecognition = filterTextRecognition,
                 watermark = filterWatermark,
+                faceDetect = filterFaceDetect,
             ),
             wm = VideoEffectsPipeline.WatermarkParams(
                 bitmap = watermarkBitmap,
