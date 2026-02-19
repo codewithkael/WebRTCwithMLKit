@@ -3,11 +3,17 @@ package com.codewithkael.webrtcwithmlkit.utils.webrt
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import androidx.core.net.toUri
+import com.codewithkael.webrtcwithmlkit.R
 import com.codewithkael.webrtcwithmlkit.utils.MyApplication
 import com.codewithkael.webrtcwithmlkit.utils.helpers.BitmapToVideoFrameConverter
 import com.codewithkael.webrtcwithmlkit.utils.helpers.YuvFrame
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.VideoEffectsPipeline
+import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.WatermarkLocation
+import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.toEffectLocation
 import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
 import com.codewithkael.webrtcwithmlkit.utils.webrt.IceServers.Companion.getIceServers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -52,17 +58,37 @@ class WebRTCFactory @Inject constructor(
     // ===== Effects pipeline =====
     private val effectsPipeline = VideoEffectsPipeline()
 
+    // ===== Watermark config (reloaded from prefs) =====
+    private var watermarkBitmap: Bitmap? = null
+    private var watermarkLocation: WatermarkLocation = WatermarkLocation.TOP_LEFT
+    private var watermarkMarginDp: Float = 12f
+    private var watermarkSizeFraction: Float = 0.20f
+
     // ===== Filters config (reloaded from prefs) =====
     @Volatile private var filterTextRecognition: Boolean = false
+    @Volatile private var filterWatermark: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
+        reloadWatermarkConfig()
+        reloadFiltersConfig()
     }
 
     //image processing section
     fun reloadFiltersConfig() {
         val cfg = FilterStorage.load(application)
         filterTextRecognition = cfg.textRecognition
+        filterWatermark = cfg.watermark
+    }
+
+    fun reloadWatermarkConfig() {
+        val cfg = WatermarkStorage.load(application)
+
+        watermarkLocation = cfg.location
+        watermarkMarginDp = cfg.marginDp
+        watermarkSizeFraction = cfg.sizeFraction
+
+        watermarkBitmap = loadBitmapFromUriOrDefault(cfg.uri)
     }
 
     // Public API
@@ -113,9 +139,7 @@ class WebRTCFactory @Inject constructor(
         videoCapture = getVideoCapture()
 
         videoCapture?.initialize(
-            surfaceTextureHelper,
-            surface.context,
-            object : CapturerObserver {
+            surfaceTextureHelper, surface.context, object : CapturerObserver {
                 override fun onCapturerStarted(success: Boolean) {}
                 override fun onCapturerStopped() {}
 
@@ -126,17 +150,14 @@ class WebRTCFactory @Inject constructor(
                     CoroutineScope(Dispatchers.Default).launch {
                         val processed = runEffects(bitmap)
                         val videoFrame = BitmapToVideoFrameConverter.convert(
-                            processed,
-                            0,
-                            System.nanoTime()
+                            processed, 0, System.nanoTime()
                         )
                         withContext(Dispatchers.Main) {
                             localVideoSource.capturerObserver.onFrameCaptured(videoFrame)
                         }
                     }
                 }
-            }
-        )
+            })
 
         videoCapture?.startCapture(720, 480, 10)
 
@@ -150,10 +171,19 @@ class WebRTCFactory @Inject constructor(
 
     private suspend fun runEffects(input: Bitmap): Bitmap {
 
+        val density = application.resources.displayMetrics.density
+        val marginPx = watermarkMarginDp * density
+
         return effectsPipeline.process(
-            input = input,
-            enabled = VideoEffectsPipeline.Enabled(
-                textRecognition = filterTextRecognition
+            input = input, enabled = VideoEffectsPipeline.Enabled(
+                textRecognition = filterTextRecognition,
+                watermark = filterWatermark,
+            ),
+            wm = VideoEffectsPipeline.WatermarkParams(
+                bitmap = watermarkBitmap,
+                location = watermarkLocation.toEffectLocation(),
+                marginPx = marginPx,
+                sizeFraction = watermarkSizeFraction
             )
         )
     }
@@ -192,4 +222,20 @@ class WebRTCFactory @Inject constructor(
                     disableNetworkMonitor = false
                 }).createPeerConnectionFactory()
     }
+
+    private fun loadBitmapFromUriOrDefault(uriStr: String?): Bitmap {
+        if (uriStr.isNullOrBlank()) {
+            return BitmapFactory.decodeResource(application.resources, R.drawable.youtube_logo)
+        }
+
+        val uri = uriStr.toUri()
+        val bmp = runCatching {
+            application.contentResolver.openInputStream(uri).use { input ->
+                if (input != null) BitmapFactory.decodeStream(input) else null
+            }
+        }.getOrNull()
+
+        return bmp ?: BitmapFactory.decodeResource(application.resources, R.drawable.youtube_logo)
+    }
+
 }

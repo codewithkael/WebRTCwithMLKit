@@ -1,6 +1,8 @@
 package com.codewithkael.webrtcwithmlkit.ui.screens
 
 import android.Manifest
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,9 +28,12 @@ import com.codewithkael.webrtcwithmlkit.ui.components.FiltersDialog
 import com.codewithkael.webrtcwithmlkit.ui.components.FooterSection
 import com.codewithkael.webrtcwithmlkit.ui.components.TopBarSection
 import com.codewithkael.webrtcwithmlkit.ui.components.VideoStageSection
+import com.codewithkael.webrtcwithmlkit.ui.components.WatermarkDialog
 import com.codewithkael.webrtcwithmlkit.ui.states.rememberFiltersUiState
+import com.codewithkael.webrtcwithmlkit.ui.states.rememberWatermarkUiState
 import com.codewithkael.webrtcwithmlkit.ui.viewmodel.MainViewModel
 import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
 
 @Composable
 fun MainScreen() {
@@ -37,9 +42,25 @@ fun MainScreen() {
     val callState by viewModel.callState.collectAsState()
     val context = LocalContext.current
 
+    val watermarkState = rememberWatermarkUiState(
+        initial = remember { WatermarkStorage.load(context) }
+    )
+
     val filtersState = rememberFiltersUiState(
         initial = remember { FilterStorage.load(context) }
     )
+
+    val pickWmLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                it,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            watermarkState.onPickedUri(it)
+        }
+    }
 
     // ---------- Permissions ----------
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -73,12 +94,14 @@ fun MainScreen() {
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(0.8f),
+            onOpenWatermark = { watermarkState.showDialog = true },
             onOpenFilters = {
                 filtersState.reloadFromStorage(context)
                 filtersState.showDialog = true
             },
             switchCamera = { viewModel.switchCamera() }
         )
+
         CallControlsSection(
             modifier = Modifier
                 .fillMaxWidth()
@@ -111,6 +134,21 @@ fun MainScreen() {
                 .fillMaxWidth()
                 .weight(1f)
                 .padding(horizontal = 5.dp, vertical = 10.dp)
+        )
+    }
+
+    // -------- Dialogs --------
+
+    if (watermarkState.showDialog) {
+        WatermarkDialog(
+            state = watermarkState,
+            onPickImage = { pickWmLauncher.launch(arrayOf("image/png", "image/jpeg")) },
+            onCancel = { watermarkState.showDialog = false },
+            onSave = { cfg ->
+                WatermarkStorage.save(context, cfg)
+                viewModel.reloadWatermark()
+                watermarkState.showDialog = false
+            }
         )
     }
     if (filtersState.showDialog) {

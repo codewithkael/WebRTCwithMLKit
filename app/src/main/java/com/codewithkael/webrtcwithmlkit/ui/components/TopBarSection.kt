@@ -1,21 +1,10 @@
 package com.codewithkael.webrtcwithmlkit.ui.components
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -25,8 +14,9 @@ import com.codewithkael.webrtcwithmlkit.utils.MyApplication
 @Composable
 fun TopBarSection(
     modifier: Modifier = Modifier,
+    onOpenWatermark: () -> Unit,
     switchCamera: () -> Unit,
-    onOpenFilters: () -> Unit,
+    onOpenFilters: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -40,6 +30,7 @@ fun TopBarSection(
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium
         )
+
         Box {
             IconButton(onClick = { menuExpanded = true }) {
                 Icon(Icons.Filled.MoreVert, contentDescription = "Options")
@@ -57,6 +48,13 @@ fun TopBarSection(
                     }
                 )
                 DropdownMenuItem(
+                    text = { Text("Watermark settings") },
+                    onClick = {
+                        menuExpanded = false
+                        onOpenWatermark()
+                    }
+                )
+                DropdownMenuItem(
                     text = { Text("Filters") },
                     onClick = {
                         menuExpanded = false
@@ -65,6 +63,5 @@ fun TopBarSection(
                 )
             }
         }
-
     }
 }

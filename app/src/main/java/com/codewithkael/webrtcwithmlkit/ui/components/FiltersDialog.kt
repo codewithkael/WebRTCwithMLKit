@@ -36,15 +36,22 @@ fun FiltersDialog(
                 subtitle = "Detect & draw text (ML Kit v2)",
                 checked = state.textRecognition,
                 imageRes = R.drawable.ic_face_filter,
-                onToggle = { state.textRecognition = it }
-            )
+                onToggle = { state.textRecognition = it })
+
+            FilterTile(
+                title = "Watermark",
+                subtitle = "Show watermark on camera",
+                checked = state.watermark,
+                imageRes = R.drawable.ic_watermark_filter,
+                onToggle = { state.watermark = it })
         }
     }, confirmButton = {
         Button(onClick = {
             onSave(
                 FilterStorage.Config(
-                    textRecognition = state.textRecognition
-                )
+                    textRecognition = state.textRecognition,
+                    watermark = state.watermark,
+                    )
             )
         }) { Text("OK") }
     }, dismissButton = {

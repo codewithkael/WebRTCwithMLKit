@@ -12,10 +12,13 @@ class FiltersUiState(initial: FilterStorage.Config) {
     var showDialog by mutableStateOf(false)
 
     var textRecognition by mutableStateOf(initial.textRecognition)
+    var watermark by mutableStateOf(initial.watermark)
 
     fun reloadFromStorage(context: Context) {
         val cfg = FilterStorage.load(context)
         textRecognition = cfg.textRecognition
+        watermark = cfg.watermark
+
     }
 }
 
