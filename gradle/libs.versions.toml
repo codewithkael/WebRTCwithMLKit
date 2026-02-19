@@ -20,6 +20,11 @@ ksp = "2.3.6"
 compose = "1.7.8"
 mlkit_text_recognition = "16.0.1"
 faceDetection = "16.1.5"
+mlkit_face_mesh = "16.0.0-beta3"
+mlkit_common = "18.11.0"
+mlkit_vision_common = "17.3.0"
+mlkit_vision_interfaces = "16.3.0"
+mlkit_mediapipe_internal = "17.0.0-beta10"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +53,13 @@ firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx", 
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkit_text_recognition" }
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+
+#facemesh
+mlkit-face-mesh = { module = "com.google.mlkit:face-mesh-detection", version.ref = "mlkit_face_mesh" }
+mlkit-common = { module = "com.google.mlkit:common", version.ref = "mlkit_common" }
+mlkit-vision-common = { module = "com.google.mlkit:vision-common", version.ref = "mlkit_vision_common" }
+mlkit-vision-interfaces = { module = "com.google.mlkit:vision-interfaces", version.ref = "mlkit_vision_interfaces" }
+mlkit-mediapipe-internal = { module = "com.google.mlkit:mediapipe-internal", version.ref = "mlkit_mediapipe_internal" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

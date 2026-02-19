@@ -52,7 +52,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_face_filter,
                 onToggle = { state.faceDetect = it }
             )
-
+            FilterTile(
+                title = "Face Mesh",
+                subtitle = "468-point mesh overlay (ML Kit)",
+                checked = state.faceMesh,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.faceMesh = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -61,6 +67,8 @@ fun FiltersDialog(
                     textRecognition = state.textRecognition,
                     watermark = state.watermark,
                     faceDetect = state.faceDetect,
+                    faceMesh = state.faceMesh,
+
                     )
             )
         }) { Text("OK") }

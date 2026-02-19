@@ -7,11 +7,13 @@ class VideoEffectsPipeline {
     private val textRecognition = TextRecognitionEffect()
     private val watermark = WatermarkEffect()
     private val faceOval = FaceOvalEffect()
+    private val faceMesh = FaceMeshEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
         val watermark: Boolean,
         val faceDetect: Boolean,
+        val faceMesh: Boolean,
     )
 
     data class WatermarkParams(
@@ -41,6 +43,7 @@ class VideoEffectsPipeline {
             )
         }
         if (enabled.faceDetect) out = faceOval.apply(out)
+        if (enabled.faceMesh) out = faceMesh.apply(out)
 
         return out
     }
@@ -48,5 +51,6 @@ class VideoEffectsPipeline {
     fun close() {
         textRecognition.close()
         faceOval.close()
+        faceMesh.close()
     }
 }

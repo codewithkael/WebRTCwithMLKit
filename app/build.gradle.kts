@@ -71,7 +71,14 @@ dependencies {
     //mlkit libraries
     implementation(libs.mlkit.text.recognition)
     implementation(libs.face.detection)
-
+    //face mesh
+    implementation(libs.mlkit.face.mesh)
+    constraints {
+        implementation(libs.mlkit.common)
+        implementation(libs.mlkit.vision.common)
+        implementation(libs.mlkit.vision.interfaces)
+        implementation(libs.mlkit.mediapipe.internal)
+    }
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
