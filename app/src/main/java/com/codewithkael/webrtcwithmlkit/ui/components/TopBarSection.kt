@@ -16,6 +16,7 @@ fun TopBarSection(
     modifier: Modifier = Modifier,
     onOpenWatermark: () -> Unit,
     switchCamera: () -> Unit,
+    backgroundImage: () -> Unit,
     onOpenFilters: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -52,6 +53,13 @@ fun TopBarSection(
                     onClick = {
                         menuExpanded = false
                         onOpenWatermark()
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Background Image") },
+                    onClick = {
+                        menuExpanded = false
+                        backgroundImage()
                     }
                 )
                 DropdownMenuItem(

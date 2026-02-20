@@ -30,6 +30,7 @@ segmentationSelfie = "16.0.0-beta6"
 mlkit_image_labeling = "17.0.9"
 mlkit-object-detection = "17.0.2"
 mlkit_pose = "18.0.0-beta5"
+coil = "2.6.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -58,6 +59,7 @@ firebase-database-ktx = { module = "com.google.firebase:firebase-database-ktx", 
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 mlkit-text-recognition = { module = "com.google.mlkit:text-recognition", version.ref = "mlkit_text_recognition" }
 face-detection = { module = "com.google.mlkit:face-detection", version.ref = "faceDetection" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 #facemesh
 mlkit-face-mesh = { module = "com.google.mlkit:face-mesh-detection", version.ref = "mlkit_face_mesh" }

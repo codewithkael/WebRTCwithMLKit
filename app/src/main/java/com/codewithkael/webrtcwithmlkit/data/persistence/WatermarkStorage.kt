@@ -1,4 +1,4 @@
-package com.codewithkael.webrtcwithmlkit.utils.persistence
+package com.codewithkael.webrtcwithmlkit.data.persistence
 
 import android.content.Context
 import androidx.core.content.edit

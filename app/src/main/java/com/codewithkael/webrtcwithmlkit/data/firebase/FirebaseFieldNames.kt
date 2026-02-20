@@ -1,4 +1,4 @@
-package com.codewithkael.webrtcwithmlkit.remote.firebase
+package com.codewithkael.webrtcwithmlkit.data.firebase
 
 object FirebaseFieldNames {
     const val USERS = "users"

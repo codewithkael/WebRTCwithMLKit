@@ -13,6 +13,7 @@ class VideoEffectsPipeline(context: Context) {
     private val imageLabeling = ImageLabelingEffect()
     private val objectDetection = ObjectDetectionEffect()
     private val poseDetection = PoseDetectionEffect()
+    private val bgReplace = BackgroundReplaceEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
@@ -23,6 +24,7 @@ class VideoEffectsPipeline(context: Context) {
         val imageLabeling: Boolean,
         val objectDetection: Boolean,
         val poseDetection: Boolean,
+        val replaceBackground: Boolean,
     )
 
     data class WatermarkParams(
@@ -32,11 +34,16 @@ class VideoEffectsPipeline(context: Context) {
         val sizeFraction: Float
     )
 
+    data class BackgroundParams(
+        val bitmap: Bitmap?,
+        val scaleMode: BackgroundScaleMode
+    )
 
     suspend fun process(
         input: Bitmap,
         enabled: Enabled,
-        wm: WatermarkParams
+        wm: WatermarkParams,
+        bg: BackgroundParams
     ): Bitmap {
         var out = input
         if (enabled.textRecognition) out = textRecognition.apply(out)
@@ -58,6 +65,12 @@ class VideoEffectsPipeline(context: Context) {
         if (enabled.objectDetection) out = objectDetection.apply(out)
         if (enabled.poseDetection) out = poseDetection.apply(out)
 
+        if (enabled.replaceBackground && bg.bitmap != null) {
+            out = bgReplace.apply(out, bg.bitmap, bg.scaleMode)
+        } else if (enabled.blurBackground) {
+            out = blur.apply(out)
+        }
+
         return out
     }
 
@@ -69,5 +82,6 @@ class VideoEffectsPipeline(context: Context) {
         imageLabeling.close()
         objectDetection.close()
         poseDetection.close()
+        bgReplace.close()
     }
 }

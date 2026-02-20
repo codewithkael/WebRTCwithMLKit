@@ -85,6 +85,7 @@ dependencies {
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.objects.detection)
     implementation(libs.mlkit.pose.detection)
+    implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

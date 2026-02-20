@@ -1,4 +1,4 @@
-package com.codewithkael.webrtcwithmlkit.remote.firebase
+package com.codewithkael.webrtcwithmlkit.data.firebase
 
 data class SignalDataModel(
     val participantId: String,

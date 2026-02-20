@@ -6,7 +6,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.FilterStorage
 
 class FiltersUiState(initial: FilterStorage.Config) {
     var showDialog by mutableStateOf(false)
@@ -19,6 +19,7 @@ class FiltersUiState(initial: FilterStorage.Config) {
     var imageLabeling by mutableStateOf(initial.imageLabeling)
     var objectDetection by mutableStateOf(initial.objectDetection)
     var poseDetection by mutableStateOf(initial.poseDetection)
+    var replaceBackground by mutableStateOf(initial.replaceBackground)
 
     fun reloadFromStorage(context: Context) {
         val cfg = FilterStorage.load(context)
@@ -30,6 +31,7 @@ class FiltersUiState(initial: FilterStorage.Config) {
         imageLabeling = cfg.imageLabeling
         objectDetection = cfg.objectDetection
         poseDetection = cfg.poseDetection
+        replaceBackground = cfg.replaceBackground
     }
 }
 

@@ -5,9 +5,9 @@ import android.app.Application
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.codewithkael.webrtcwithmlkit.remote.firebase.FirebaseClient
-import com.codewithkael.webrtcwithmlkit.remote.firebase.SignalDataModel
-import com.codewithkael.webrtcwithmlkit.remote.firebase.SignalDataModelTypes
+import com.codewithkael.webrtcwithmlkit.data.firebase.FirebaseClient
+import com.codewithkael.webrtcwithmlkit.data.firebase.SignalDataModel
+import com.codewithkael.webrtcwithmlkit.data.firebase.SignalDataModelTypes
 import com.codewithkael.webrtcwithmlkit.utils.MyApplication
 import com.codewithkael.webrtcwithmlkit.utils.MyApplication.Companion.TAG
 import com.codewithkael.webrtcwithmlkit.utils.webrt.MyPeerObserver
@@ -222,7 +222,9 @@ class MainViewModel @Inject constructor(
     fun reloadWatermark() {
         webRTCFactory.reloadWatermarkConfig()
     }
-
+    fun reloadBackground() {
+        webRTCFactory.reloadBackgroundConfig()
+    }
     override fun onCleared() {
         super.onCleared()
         remoteSurface?.release()

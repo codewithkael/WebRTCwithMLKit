@@ -1,4 +1,4 @@
-package com.codewithkael.webrtcwithmlkit.utils.persistence
+package com.codewithkael.webrtcwithmlkit.data.persistence
 
 import android.content.Context
 import androidx.core.content.edit
@@ -13,6 +13,7 @@ object FilterStorage {
     private const val KEY_IMAGE_LABELING = "flt_image_labeling"
     private const val KEY_OBJECT_DETECTION = "flt_object_detection"
     private const val KEY_POSE_DETECTION = "flt_pose_detection"
+    private const val KEY_BG_REPLACE = "flt_bg_replace"
 
     data class Config(
         val textRecognition: Boolean,
@@ -23,7 +24,9 @@ object FilterStorage {
         val imageLabeling: Boolean,
         val objectDetection: Boolean,
         val poseDetection: Boolean,
+        val replaceBackground: Boolean,
         )
+
 
     fun load(ctx: Context): Config {
         val sp = ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE)
@@ -36,6 +39,7 @@ object FilterStorage {
             imageLabeling = sp.getBoolean(KEY_IMAGE_LABELING, false),
             objectDetection = sp.getBoolean(KEY_OBJECT_DETECTION, false),
             poseDetection = sp.getBoolean(KEY_POSE_DETECTION, false),
+            replaceBackground = sp.getBoolean(KEY_BG_REPLACE, false),
             )
     }
 
@@ -49,6 +53,7 @@ object FilterStorage {
                 .putBoolean(KEY_IMAGE_LABELING, cfg.imageLabeling)
                 .putBoolean(KEY_OBJECT_DETECTION, cfg.objectDetection)
                 .putBoolean(KEY_POSE_DETECTION, cfg.poseDetection)
+                .putBoolean(KEY_BG_REPLACE, cfg.replaceBackground)
         }
     }
 }

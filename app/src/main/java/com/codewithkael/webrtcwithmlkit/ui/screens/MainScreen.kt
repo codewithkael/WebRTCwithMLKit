@@ -23,17 +23,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.codewithkael.webrtcwithmlkit.data.persistence.BackgroundStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.WatermarkStorage
+import com.codewithkael.webrtcwithmlkit.ui.components.BackgroundDialog
 import com.codewithkael.webrtcwithmlkit.ui.components.CallControlsSection
 import com.codewithkael.webrtcwithmlkit.ui.components.FiltersDialog
 import com.codewithkael.webrtcwithmlkit.ui.components.FooterSection
 import com.codewithkael.webrtcwithmlkit.ui.components.TopBarSection
 import com.codewithkael.webrtcwithmlkit.ui.components.VideoStageSection
 import com.codewithkael.webrtcwithmlkit.ui.components.WatermarkDialog
+import com.codewithkael.webrtcwithmlkit.ui.states.rememberBackgroundUiState
 import com.codewithkael.webrtcwithmlkit.ui.states.rememberFiltersUiState
 import com.codewithkael.webrtcwithmlkit.ui.states.rememberWatermarkUiState
 import com.codewithkael.webrtcwithmlkit.ui.viewmodel.MainViewModel
-import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
-import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
 
 @Composable
 fun MainScreen() {
@@ -43,22 +46,33 @@ fun MainScreen() {
     val context = LocalContext.current
 
     val watermarkState = rememberWatermarkUiState(
-        initial = remember { WatermarkStorage.load(context) }
-    )
+        initial = remember { WatermarkStorage.load(context) })
 
     val filtersState = rememberFiltersUiState(
-        initial = remember { FilterStorage.load(context) }
-    )
+        initial = remember { FilterStorage.load(context) })
 
     val pickWmLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocument()
     ) { uri: Uri? ->
         uri?.let {
             context.contentResolver.takePersistableUriPermission(
-                it,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                it, Intent.FLAG_GRANT_READ_URI_PERMISSION
             )
             watermarkState.onPickedUri(it)
+        }
+    }
+
+    val bgState = rememberBackgroundUiState(
+        initial = remember { BackgroundStorage.load(context) })
+
+    val pickBgLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri: Uri? ->
+        uri?.let {
+            context.contentResolver.takePersistableUriPermission(
+                it, Intent.FLAG_GRANT_READ_URI_PERMISSION
+            )
+            bgState.onPickedUri(it)
         }
     }
 
@@ -99,8 +113,10 @@ fun MainScreen() {
                 filtersState.reloadFromStorage(context)
                 filtersState.showDialog = true
             },
-            switchCamera = { viewModel.switchCamera() }
-        )
+            backgroundImage = {
+                bgState.showDialog = true
+            },
+            switchCamera = { viewModel.switchCamera() })
 
         CallControlsSection(
             modifier = Modifier
@@ -148,8 +164,19 @@ fun MainScreen() {
                 WatermarkStorage.save(context, cfg)
                 viewModel.reloadWatermark()
                 watermarkState.showDialog = false
-            }
-        )
+            })
+    }
+    if (bgState.showDialog) {
+        BackgroundDialog(
+            state = bgState,
+            onPickImage = { pickBgLauncher.launch(arrayOf("image/png", "image/jpeg")) },
+            onClear = { bgState.clear() },
+            onCancel = { bgState.showDialog = false },
+            onSave = { cfg ->
+                BackgroundStorage.save(context, cfg)
+                viewModel.reloadBackground()
+                bgState.showDialog = false
+            })
     }
     if (filtersState.showDialog) {
         FiltersDialog(
@@ -159,7 +186,6 @@ fun MainScreen() {
                 FilterStorage.save(context, cfg)
                 viewModel.reloadFilters()
                 filtersState.showDialog = false
-            }
-        )
+            })
     }
 }

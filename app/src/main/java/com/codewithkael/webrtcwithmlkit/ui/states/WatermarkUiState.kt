@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.WatermarkStorage
 
 class WatermarkUiState(initial: WatermarkStorage.Config) {
     var showDialog by mutableStateOf(false)

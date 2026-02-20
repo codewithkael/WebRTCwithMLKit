@@ -6,14 +6,16 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import androidx.core.net.toUri
 import com.codewithkael.webrtcwithmlkit.R
+import com.codewithkael.webrtcwithmlkit.data.persistence.BackgroundStorage
 import com.codewithkael.webrtcwithmlkit.utils.MyApplication
 import com.codewithkael.webrtcwithmlkit.utils.helpers.BitmapToVideoFrameConverter
 import com.codewithkael.webrtcwithmlkit.utils.helpers.YuvFrame
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.VideoEffectsPipeline
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.WatermarkLocation
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.toEffectLocation
-import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
-import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.WatermarkStorage
+import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.BackgroundScaleMode
 import com.codewithkael.webrtcwithmlkit.utils.webrt.IceServers.Companion.getIceServers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,6 +66,10 @@ class WebRTCFactory @Inject constructor(
     private var watermarkMarginDp: Float = 12f
     private var watermarkSizeFraction: Float = 0.20f
 
+    // ===== Background Replace config (reloaded from prefs) =====
+    private var backgroundBitmap: Bitmap? = null
+    private var backgroundScaleMode: BackgroundScaleMode = BackgroundScaleMode.CENTER_CROP
+
     // ===== Filters config (reloaded from prefs) =====
     @Volatile private var filterTextRecognition: Boolean = false
     @Volatile private var filterWatermark: Boolean = false
@@ -73,11 +79,13 @@ class WebRTCFactory @Inject constructor(
     @Volatile private var filterImageLabeling: Boolean = false
     @Volatile private var filterObjectDetection: Boolean = false
     @Volatile private var filterPoseDetection: Boolean = false
+    @Volatile private var filterReplaceBackground: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
         reloadWatermarkConfig()
         reloadFiltersConfig()
+        reloadBackgroundConfig()
     }
 
     //image processing section
@@ -91,6 +99,7 @@ class WebRTCFactory @Inject constructor(
         filterImageLabeling = cfg.imageLabeling
         filterObjectDetection = cfg.objectDetection
         filterPoseDetection = cfg.poseDetection
+        filterReplaceBackground = cfg.replaceBackground
     }
 
     fun reloadWatermarkConfig() {
@@ -99,8 +108,13 @@ class WebRTCFactory @Inject constructor(
         watermarkLocation = cfg.location
         watermarkMarginDp = cfg.marginDp
         watermarkSizeFraction = cfg.sizeFraction
-
         watermarkBitmap = loadBitmapFromUriOrDefault(cfg.uri)
+    }
+
+    fun reloadBackgroundConfig() {
+        val cfg = BackgroundStorage.load(application)
+        backgroundScaleMode = cfg.scaleMode
+        backgroundBitmap = loadBitmapFromUriOrNull(cfg.uri)
     }
 
     // Public API
@@ -196,11 +210,15 @@ class WebRTCFactory @Inject constructor(
                 imageLabeling = filterImageLabeling,
                 objectDetection = filterObjectDetection,
                 poseDetection = filterPoseDetection,
+                replaceBackground = filterReplaceBackground,
                 ), wm = VideoEffectsPipeline.WatermarkParams(
                 bitmap = watermarkBitmap,
                 location = watermarkLocation.toEffectLocation(),
                 marginPx = marginPx,
                 sizeFraction = watermarkSizeFraction
+            ),bg = VideoEffectsPipeline.BackgroundParams(
+                bitmap = backgroundBitmap,
+                scaleMode = backgroundScaleMode
             )
         )
     }
@@ -254,5 +272,13 @@ class WebRTCFactory @Inject constructor(
 
         return bmp ?: BitmapFactory.decodeResource(application.resources, R.drawable.youtube_logo)
     }
-
+    private fun loadBitmapFromUriOrNull(uriStr: String?): Bitmap? {
+        if (uriStr.isNullOrBlank()) return null
+        val uri = uriStr.toUri()
+        return runCatching {
+            application.contentResolver.openInputStream(uri).use { input ->
+                if (input != null) BitmapFactory.decodeStream(input) else null
+            }
+        }.getOrNull()
+    }
 }

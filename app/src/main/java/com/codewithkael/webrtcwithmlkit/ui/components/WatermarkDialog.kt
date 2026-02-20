@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.codewithkael.webrtcwithmlkit.ui.states.WatermarkUiState
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.WatermarkLocation
-import com.codewithkael.webrtcwithmlkit.utils.persistence.WatermarkStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.WatermarkStorage
 
 @Composable
 fun WatermarkDialog(

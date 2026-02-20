@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.codewithkael.webrtcwithmlkit.R
 import com.codewithkael.webrtcwithmlkit.ui.states.FiltersUiState
-import com.codewithkael.webrtcwithmlkit.utils.persistence.FilterStorage
+import com.codewithkael.webrtcwithmlkit.data.persistence.FilterStorage
 
 @Composable
 fun FiltersDialog(
@@ -87,6 +87,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_face_filter,
                 onToggle = { state.poseDetection = it }
             )
+            FilterTile(
+                title = "Background Replace",
+                subtitle = "Replace background with selected image",
+                checked = state.replaceBackground,
+                imageRes = R.drawable.ic_blur_filter,
+                onToggle = { state.replaceBackground = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -100,6 +107,7 @@ fun FiltersDialog(
                     imageLabeling = state.imageLabeling,
                     objectDetection = state.objectDetection,
                     poseDetection = state.poseDetection,
+                    replaceBackground = state.replaceBackground,
                     )
             )
         }) { Text("OK") }

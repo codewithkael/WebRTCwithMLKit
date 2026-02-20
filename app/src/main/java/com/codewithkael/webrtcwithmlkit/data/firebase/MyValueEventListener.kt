@@ -1,4 +1,4 @@
-package com.codewithkael.webrtcwithmlkit.remote.firebase
+package com.codewithkael.webrtcwithmlkit.data.firebase
 
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
