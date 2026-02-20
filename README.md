@@ -22,7 +22,41 @@ It includes:
 # 🧩 MVP Overview
 
 This project builds a fully functional **two-user video calling application** with real-time video processing.
+```mermaid
+flowchart TB
+  subgraph DeviceA[Android Device A]
+    UIA[Compose UI]
+    VMA[ViewModel]
+    RTCA[WebRTC Client]
+    CAPA[Camera Capturer]
+    FXA[Effects Pipeline]
+    STA[Filter Storage]
+    UIA --> VMA --> RTCA
+    RTCA --> CAPA --> FXA --> RTCA
+    UIA --> STA --> FXA
+  end
 
+  subgraph DeviceB[Android Device B]
+    UIB[Compose UI]
+    VMB[ViewModel]
+    RTCB[WebRTC Client]
+    CAPB[Camera Capturer]
+    FXB[Effects Pipeline]
+    STB[Filter Storage]
+    UIB --> VMB --> RTCB
+    RTCB --> CAPB --> FXB --> RTCB
+    UIB --> STB --> FXB
+  end
+
+  subgraph Firebase[Firebase Realtime Database]
+    SIG[Signaling Data Node]
+  end
+
+  RTCA <--> SIG
+  RTCB <--> SIG
+
+  RTCA <--> RTCB
+```
 ## ✅ What This MVP Includes
 
 ### 1️⃣ Two-User Video Calling Flow
@@ -31,19 +65,71 @@ This project builds a fully functional **two-user video calling application** wi
 - WebRTC SDP `OFFER` / `ANSWER` exchanged via Firebase
 - ICE candidates exchanged via Firebase
 - Peer-to-peer media stream established
+```mermaid
+sequenceDiagram
+  participant Caller as Caller App
+  participant DB as Firebase RTDB
+  participant Callee as Callee App
 
+  Caller->>DB: INCOMING_CALL
+  Callee->>DB: ACCEPT_CALL
+
+  Caller->>DB: OFFER
+  Callee->>DB: ANSWER
+
+  par ICE exchange
+    Caller->>DB: ICE
+    Callee->>DB: ICE
+  end
+
+  Note over Caller,Callee: Media flows peer to peer after connection
+```
 ### 2️⃣ Real-Time Video Frame Processing
 - Camera `VideoFrame` is converted to a `Bitmap`
 - ML Kit filters and overlays are applied
 - Processed `Bitmap` is converted back to a WebRTC `VideoFrame`
 - Processed frame is injected into WebRTC and streamed
+```mermaid
+flowchart LR
+  A[Camera Frame] --> B[VideoFrame YUV]
+  B --> C[Convert to Bitmap ARGB]
+  C --> D[Run Effects Pipeline]
+  D --> E[Convert to VideoFrame I420]
+  E --> F[Inject into WebRTC VideoSource]
+  F --> G[Encode and Stream]
+  G --> H[Remote Receives Processed Video]
+```
+```mermaid
+flowchart TB
+  IN[Input Bitmap] --> STEP1{Flags Enabled}
 
+  STEP1 --> OCR[Text Recognition Overlay]
+  OCR --> WM[Watermark Overlay]
+  WM --> FO[Face Oval Overlay]
+  FO --> FM[Face Mesh Overlay]
+  FM --> BB[Background Blur]
+  BB --> IL[Image Labeling Overlay]
+  IL --> OD[Object Detection Overlay]
+  OD --> PD[Pose Detection Overlay]
+  PD --> OUT[Output Bitmap]
+```
 ### 3️⃣ Runtime Filter Toggles
 - Filters can be enabled/disabled from UI
 - Flags are persisted (e.g., SharedPreferences)
 - The capture pipeline reloads configuration dynamically
 - No call restart required
+```mermaid
+sequenceDiagram
+  participant UI as Filters Dialog
+  participant ST as Filter Storage
+  participant VM as ViewModel
+  participant PIPE as WebRTC Factory
 
+  UI->>ST: Save flags
+  UI->>VM: Reload filters
+  VM->>PIPE: Reload config
+  Note over PIPE: Next frames use updated flags
+```
 ---
 
 # 🏗️ Tech Stack
