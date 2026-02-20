@@ -80,6 +80,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_face_filter,
                 onToggle = { state.objectDetection = it }
             )
+            FilterTile(
+                title = "Pose Detection",
+                subtitle = "Skeleton + landmarks (ML Kit)",
+                checked = state.poseDetection,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.poseDetection = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -92,7 +99,7 @@ fun FiltersDialog(
                     blurBackground = state.blurBackground,
                     imageLabeling = state.imageLabeling,
                     objectDetection = state.objectDetection,
-
+                    poseDetection = state.poseDetection,
                     )
             )
         }) { Text("OK") }

@@ -12,6 +12,7 @@ object FilterStorage {
     private const val KEY_BLUR = "flt_blur"
     private const val KEY_IMAGE_LABELING = "flt_image_labeling"
     private const val KEY_OBJECT_DETECTION = "flt_object_detection"
+    private const val KEY_POSE_DETECTION = "flt_pose_detection"
 
     data class Config(
         val textRecognition: Boolean,
@@ -21,7 +22,7 @@ object FilterStorage {
         val blurBackground: Boolean,
         val imageLabeling: Boolean,
         val objectDetection: Boolean,
-
+        val poseDetection: Boolean,
         )
 
     fun load(ctx: Context): Config {
@@ -34,7 +35,7 @@ object FilterStorage {
             blurBackground = sp.getBoolean(KEY_BLUR, false),
             imageLabeling = sp.getBoolean(KEY_IMAGE_LABELING, false),
             objectDetection = sp.getBoolean(KEY_OBJECT_DETECTION, false),
-
+            poseDetection = sp.getBoolean(KEY_POSE_DETECTION, false),
             )
     }
 
@@ -47,7 +48,7 @@ object FilterStorage {
                 .putBoolean(KEY_BLUR, cfg.blurBackground)
                 .putBoolean(KEY_IMAGE_LABELING, cfg.imageLabeling)
                 .putBoolean(KEY_OBJECT_DETECTION, cfg.objectDetection)
-
+                .putBoolean(KEY_POSE_DETECTION, cfg.poseDetection)
         }
     }
 }

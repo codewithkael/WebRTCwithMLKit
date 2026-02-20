@@ -29,6 +29,7 @@ hokoBlur = "1.5.3"
 segmentationSelfie = "16.0.0-beta6"
 mlkit_image_labeling = "17.0.9"
 mlkit-object-detection = "17.0.2"
+mlkit_pose = "18.0.0-beta5"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -70,6 +71,7 @@ segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie"
 
 mlkit-image-labeling = { module = "com.google.mlkit:image-labeling", version.ref = "mlkit_image_labeling" }
 mlkit-objects-detection = { module = "com.google.mlkit:object-detection", version.ref = "mlkit-object-detection" }
+mlkit-pose-detection = { module = "com.google.mlkit:pose-detection", version.ref = "mlkit_pose" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

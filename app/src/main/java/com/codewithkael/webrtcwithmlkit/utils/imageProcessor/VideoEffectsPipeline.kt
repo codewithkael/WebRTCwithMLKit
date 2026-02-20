@@ -2,7 +2,6 @@ package com.codewithkael.webrtcwithmlkit.utils.imageProcessor
 
 import android.content.Context
 import android.graphics.Bitmap
-import kotlin.apply
 
 class VideoEffectsPipeline(context: Context) {
 
@@ -13,6 +12,7 @@ class VideoEffectsPipeline(context: Context) {
     private val blur = BackgroundBlurEffect(context)
     private val imageLabeling = ImageLabelingEffect()
     private val objectDetection = ObjectDetectionEffect()
+    private val poseDetection = PoseDetectionEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
@@ -22,7 +22,7 @@ class VideoEffectsPipeline(context: Context) {
         val blurBackground: Boolean,
         val imageLabeling: Boolean,
         val objectDetection: Boolean,
-
+        val poseDetection: Boolean,
     )
 
     data class WatermarkParams(
@@ -56,6 +56,7 @@ class VideoEffectsPipeline(context: Context) {
         if (enabled.blurBackground) out = blur.apply(out)
         if (enabled.imageLabeling) out = imageLabeling.apply(out)
         if (enabled.objectDetection) out = objectDetection.apply(out)
+        if (enabled.poseDetection) out = poseDetection.apply(out)
 
         return out
     }
@@ -67,6 +68,6 @@ class VideoEffectsPipeline(context: Context) {
         blur.close()
         imageLabeling.close()
         objectDetection.close()
-
+        poseDetection.close()
     }
 }

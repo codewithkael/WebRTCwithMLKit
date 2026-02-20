@@ -72,6 +72,7 @@ class WebRTCFactory @Inject constructor(
     @Volatile private var filterBlurBackground: Boolean = false
     @Volatile private var filterImageLabeling: Boolean = false
     @Volatile private var filterObjectDetection: Boolean = false
+    @Volatile private var filterPoseDetection: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
@@ -89,7 +90,7 @@ class WebRTCFactory @Inject constructor(
         filterBlurBackground = cfg.blurBackground
         filterImageLabeling = cfg.imageLabeling
         filterObjectDetection = cfg.objectDetection
-
+        filterPoseDetection = cfg.poseDetection
     }
 
     fun reloadWatermarkConfig() {
@@ -194,7 +195,7 @@ class WebRTCFactory @Inject constructor(
                 blurBackground = filterBlurBackground,
                 imageLabeling = filterImageLabeling,
                 objectDetection = filterObjectDetection,
-
+                poseDetection = filterPoseDetection,
                 ), wm = VideoEffectsPipeline.WatermarkParams(
                 bitmap = watermarkBitmap,
                 location = watermarkLocation.toEffectLocation(),

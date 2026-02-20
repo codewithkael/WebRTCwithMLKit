@@ -84,6 +84,7 @@ dependencies {
     implementation(libs.segmentation.selfie)
     implementation(libs.mlkit.image.labeling)
     implementation(libs.mlkit.objects.detection)
+    implementation(libs.mlkit.pose.detection)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
