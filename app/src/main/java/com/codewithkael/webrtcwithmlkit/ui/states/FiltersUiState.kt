@@ -17,6 +17,7 @@ class FiltersUiState(initial: FilterStorage.Config) {
     var faceMesh by mutableStateOf(initial.faceMesh)
     var blurBackground by mutableStateOf(initial.blurBackground)
     var imageLabeling by mutableStateOf(initial.imageLabeling)
+    var objectDetection by mutableStateOf(initial.objectDetection)
 
     fun reloadFromStorage(context: Context) {
         val cfg = FilterStorage.load(context)
@@ -26,6 +27,7 @@ class FiltersUiState(initial: FilterStorage.Config) {
         faceMesh = cfg.faceMesh
         blurBackground = cfg.blurBackground
         imageLabeling = cfg.imageLabeling
+        objectDetection = cfg.objectDetection
 
     }
 }

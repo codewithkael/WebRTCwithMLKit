@@ -73,6 +73,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_face_filter,
                 onToggle = { state.imageLabeling = it }
             )
+            FilterTile(
+                title = "Object Detection",
+                subtitle = "Boxes + labels (ML Kit)",
+                checked = state.objectDetection,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.objectDetection = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -84,6 +91,7 @@ fun FiltersDialog(
                     faceMesh = state.faceMesh,
                     blurBackground = state.blurBackground,
                     imageLabeling = state.imageLabeling,
+                    objectDetection = state.objectDetection,
 
                     )
             )

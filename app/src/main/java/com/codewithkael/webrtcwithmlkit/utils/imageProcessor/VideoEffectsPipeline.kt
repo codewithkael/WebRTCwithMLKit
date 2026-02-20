@@ -2,6 +2,7 @@ package com.codewithkael.webrtcwithmlkit.utils.imageProcessor
 
 import android.content.Context
 import android.graphics.Bitmap
+import kotlin.apply
 
 class VideoEffectsPipeline(context: Context) {
 
@@ -11,6 +12,7 @@ class VideoEffectsPipeline(context: Context) {
     private val faceMesh = FaceMeshEffect()
     private val blur = BackgroundBlurEffect(context)
     private val imageLabeling = ImageLabelingEffect()
+    private val objectDetection = ObjectDetectionEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
@@ -19,6 +21,7 @@ class VideoEffectsPipeline(context: Context) {
         val faceMesh: Boolean,
         val blurBackground: Boolean,
         val imageLabeling: Boolean,
+        val objectDetection: Boolean,
 
     )
 
@@ -52,6 +55,7 @@ class VideoEffectsPipeline(context: Context) {
         if (enabled.faceMesh) out = faceMesh.apply(out)
         if (enabled.blurBackground) out = blur.apply(out)
         if (enabled.imageLabeling) out = imageLabeling.apply(out)
+        if (enabled.objectDetection) out = objectDetection.apply(out)
 
         return out
     }
@@ -62,6 +66,7 @@ class VideoEffectsPipeline(context: Context) {
         faceMesh.close()
         blur.close()
         imageLabeling.close()
+        objectDetection.close()
 
     }
 }

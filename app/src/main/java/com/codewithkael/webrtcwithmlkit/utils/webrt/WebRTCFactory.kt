@@ -71,6 +71,7 @@ class WebRTCFactory @Inject constructor(
     @Volatile private var filterFaceMesh: Boolean = false
     @Volatile private var filterBlurBackground: Boolean = false
     @Volatile private var filterImageLabeling: Boolean = false
+    @Volatile private var filterObjectDetection: Boolean = false
 
     init {
         initPeerConnectionFactory(application)
@@ -87,6 +88,7 @@ class WebRTCFactory @Inject constructor(
         filterFaceMesh = cfg.faceMesh
         filterBlurBackground = cfg.blurBackground
         filterImageLabeling = cfg.imageLabeling
+        filterObjectDetection = cfg.objectDetection
 
     }
 
@@ -190,9 +192,10 @@ class WebRTCFactory @Inject constructor(
                 faceDetect = filterFaceDetect,
                 faceMesh = filterFaceMesh,
                 blurBackground = filterBlurBackground,
-                imageLabeling = filterImageLabeling
-            ),
-            wm = VideoEffectsPipeline.WatermarkParams(
+                imageLabeling = filterImageLabeling,
+                objectDetection = filterObjectDetection,
+
+                ), wm = VideoEffectsPipeline.WatermarkParams(
                 bitmap = watermarkBitmap,
                 location = watermarkLocation.toEffectLocation(),
                 marginPx = marginPx,
