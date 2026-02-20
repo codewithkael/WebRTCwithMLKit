@@ -23,6 +23,49 @@ It includes:
 
 This project builds a fully functional **two-user video calling application** with real-time video processing.
 ```mermaid
+flowchart TB
+  subgraph DeviceA[Android Device A]
+    UIA[Compose UI]
+    VMA[ViewModel]
+    RTCA[WebRTC Client]
+    CAPA[Camera Capturer]
+    FXA[Effects Pipeline]
+    STA[Filter Storage]
+    UIA --> VMA --> RTCA
+    RTCA --> CAPA --> FXA --> RTCA
+    UIA --> STA --> FXA
+  end
+
+  subgraph DeviceB[Android Device B]
+    UIB[Compose UI]
+    VMB[ViewModel]
+    RTCB[WebRTC Client]
+    CAPB[Camera Capturer]
+    FXB[Effects Pipeline]
+    STB[Filter Storage]
+    UIB --> VMB --> RTCB
+    RTCB --> CAPB --> FXB --> RTCB
+    UIB --> STB --> FXB
+  end
+
+  subgraph Firebase[Firebase Realtime Database]
+    SIG[Signaling Data Node]
+  end
+
+  RTCA <--> SIG
+  RTCB <--> SIG
+
+  RTCA <--> RTCB
+```
+## ✅ What This MVP Includes
+
+### 1️⃣ Two-User Video Calling Flow
+- Caller sends an `INCOMING_CALL` signal
+- Callee accepts with `ACCEPT_CALL`
+- WebRTC SDP `OFFER` / `ANSWER` exchanged via Firebase
+- ICE candidates exchanged via Firebase
+- Peer-to-peer media stream established
+```mermaid
 sequenceDiagram
   participant Caller as Caller App
   participant Firebase as Firebase RTDB (Signaling)
@@ -48,33 +91,6 @@ sequenceDiagram
   end
 
   Note over Caller,Callee: After SDP+ICE, media flows P2P (Firebase not used for media)
-```
-## ✅ What This MVP Includes
-
-### 1️⃣ Two-User Video Calling Flow
-- Caller sends an `INCOMING_CALL` signal
-- Callee accepts with `ACCEPT_CALL`
-- WebRTC SDP `OFFER` / `ANSWER` exchanged via Firebase
-- ICE candidates exchanged via Firebase
-- Peer-to-peer media stream established
-```mermaid
-sequenceDiagram
-  participant Caller as Caller App
-  participant DB as Firebase RTDB
-  participant Callee as Callee App
-
-  Caller->>DB: INCOMING_CALL
-  Callee->>DB: ACCEPT_CALL
-
-  Caller->>DB: OFFER
-  Callee->>DB: ANSWER
-
-  par ICE exchange
-    Caller->>DB: ICE
-    Callee->>DB: ICE
-  end
-
-  Note over Caller,Callee: Media flows peer to peer after connection
 ```
 ### 2️⃣ Real-Time Video Frame Processing
 - Camera `VideoFrame` is converted to a `Bitmap`
