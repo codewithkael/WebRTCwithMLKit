@@ -82,6 +82,7 @@ dependencies {
 
     implementation(libs.hoko.blur)
     implementation(libs.segmentation.selfie)
+    implementation(libs.mlkit.image.labeling)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

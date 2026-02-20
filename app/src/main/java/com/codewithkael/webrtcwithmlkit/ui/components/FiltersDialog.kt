@@ -66,6 +66,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_blur_filter,
                 onToggle = { state.blurBackground = it }
             )
+            FilterTile(
+                title = "Image Labeling",
+                subtitle = "Scene labels (ML Kit)",
+                checked = state.imageLabeling,
+                imageRes = R.drawable.ic_face_filter,
+                onToggle = { state.imageLabeling = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -76,6 +83,7 @@ fun FiltersDialog(
                     faceDetect = state.faceDetect,
                     faceMesh = state.faceMesh,
                     blurBackground = state.blurBackground,
+                    imageLabeling = state.imageLabeling,
 
                     )
             )

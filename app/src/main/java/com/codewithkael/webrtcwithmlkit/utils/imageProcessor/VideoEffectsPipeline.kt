@@ -10,6 +10,7 @@ class VideoEffectsPipeline(context: Context) {
     private val faceOval = FaceOvalEffect()
     private val faceMesh = FaceMeshEffect()
     private val blur = BackgroundBlurEffect(context)
+    private val imageLabeling = ImageLabelingEffect()
 
     data class Enabled(
         val textRecognition: Boolean,
@@ -17,6 +18,7 @@ class VideoEffectsPipeline(context: Context) {
         val faceDetect: Boolean,
         val faceMesh: Boolean,
         val blurBackground: Boolean,
+        val imageLabeling: Boolean,
 
     )
 
@@ -49,6 +51,7 @@ class VideoEffectsPipeline(context: Context) {
         if (enabled.faceDetect) out = faceOval.apply(out)
         if (enabled.faceMesh) out = faceMesh.apply(out)
         if (enabled.blurBackground) out = blur.apply(out)
+        if (enabled.imageLabeling) out = imageLabeling.apply(out)
 
         return out
     }
@@ -58,5 +61,7 @@ class VideoEffectsPipeline(context: Context) {
         faceOval.close()
         faceMesh.close()
         blur.close()
+        imageLabeling.close()
+
     }
 }

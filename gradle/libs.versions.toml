@@ -27,6 +27,7 @@ mlkit_vision_interfaces = "16.3.0"
 mlkit_mediapipe_internal = "17.0.0-beta10"
 hokoBlur = "1.5.3"
 segmentationSelfie = "16.0.0-beta6"
+mlkit_image_labeling = "17.0.9"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -65,6 +66,8 @@ mlkit-mediapipe-internal = { module = "com.google.mlkit:mediapipe-internal", ver
 
 hoko-blur = { group = "io.github.hokofly", name = "hoko-blur", version.ref = "hokoBlur" }
 segmentation-selfie = { group = "com.google.mlkit", name = "segmentation-selfie", version.ref = "segmentationSelfie" }
+
+mlkit-image-labeling = { module = "com.google.mlkit:image-labeling", version.ref = "mlkit_image_labeling" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
