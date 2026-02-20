@@ -23,39 +23,31 @@ It includes:
 
 This project builds a fully functional **two-user video calling application** with real-time video processing.
 ```mermaid
-flowchart TB
-  subgraph DeviceA[Android Device A]
-    UIA[Compose UI]
-    VMA[ViewModel]
-    RTCA[WebRTC Client]
-    CAPA[Camera Capturer]
-    FXA[Effects Pipeline]
-    STA[Filter Storage]
-    UIA --> VMA --> RTCA
-    RTCA --> CAPA --> FXA --> RTCA
-    UIA --> STA --> FXA
+sequenceDiagram
+  participant Caller as Caller App
+  participant Firebase as Firebase RTDB (Signaling)
+  participant Callee as Callee App
+
+  Caller->>Firebase: INCOMING_CALL (to callee node)
+  Callee-->>Firebase: ACCEPT_CALL (to caller node)
+
+  Caller->>Caller: create PeerConnection + local tracks
+  Caller->>Firebase: OFFER (SDP)
+
+  Callee->>Callee: create PeerConnection + local tracks
+  Callee->>Callee: setRemoteDescription(OFFER)
+  Callee->>Firebase: ANSWER (SDP)
+
+  Caller->>Caller: setRemoteDescription(ANSWER)
+
+  par ICE exchange (both sides)
+    Caller->>Firebase: ICE candidate(s)
+    Callee->>Firebase: ICE candidate(s)
+    Caller->>Caller: addIceCandidate(from callee)
+    Callee->>Callee: addIceCandidate(from caller)
   end
 
-  subgraph DeviceB[Android Device B]
-    UIB[Compose UI]
-    VMB[ViewModel]
-    RTCB[WebRTC Client]
-    CAPB[Camera Capturer]
-    FXB[Effects Pipeline]
-    STB[Filter Storage]
-    UIB --> VMB --> RTCB
-    RTCB --> CAPB --> FXB --> RTCB
-    UIB --> STB --> FXB
-  end
-
-  subgraph Firebase[Firebase Realtime Database]
-    SIG[Signaling Data Node]
-  end
-
-  RTCA <--> SIG
-  RTCB <--> SIG
-
-  RTCA <--> RTCB
+  Note over Caller,Callee: After SDP+ICE, media flows P2P (Firebase not used for media)
 ```
 ## ✅ What This MVP Includes
 
