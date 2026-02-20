@@ -1,19 +1,23 @@
 package com.codewithkael.webrtcwithmlkit.utils.imageProcessor
 
+import android.content.Context
 import android.graphics.Bitmap
 
-class VideoEffectsPipeline {
+class VideoEffectsPipeline(context: Context) {
 
     private val textRecognition = TextRecognitionEffect()
     private val watermark = WatermarkEffect()
     private val faceOval = FaceOvalEffect()
     private val faceMesh = FaceMeshEffect()
+    private val blur = BackgroundBlurEffect(context)
 
     data class Enabled(
         val textRecognition: Boolean,
         val watermark: Boolean,
         val faceDetect: Boolean,
         val faceMesh: Boolean,
+        val blurBackground: Boolean,
+
     )
 
     data class WatermarkParams(
@@ -44,6 +48,7 @@ class VideoEffectsPipeline {
         }
         if (enabled.faceDetect) out = faceOval.apply(out)
         if (enabled.faceMesh) out = faceMesh.apply(out)
+        if (enabled.blurBackground) out = blur.apply(out)
 
         return out
     }
@@ -52,5 +57,6 @@ class VideoEffectsPipeline {
         textRecognition.close()
         faceOval.close()
         faceMesh.close()
+        blur.close()
     }
 }

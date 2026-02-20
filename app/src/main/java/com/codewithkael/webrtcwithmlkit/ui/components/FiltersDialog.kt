@@ -59,6 +59,13 @@ fun FiltersDialog(
                 imageRes = R.drawable.ic_face_filter,
                 onToggle = { state.faceMesh = it }
             )
+            FilterTile(
+                title = "Background Blur",
+                subtitle = "Blur background (segmentation)",
+                checked = state.blurBackground,
+                imageRes = R.drawable.ic_blur_filter,
+                onToggle = { state.blurBackground = it }
+            )
         }
     }, confirmButton = {
         Button(onClick = {
@@ -68,6 +75,7 @@ fun FiltersDialog(
                     watermark = state.watermark,
                     faceDetect = state.faceDetect,
                     faceMesh = state.faceMesh,
+                    blurBackground = state.blurBackground,
 
                     )
             )

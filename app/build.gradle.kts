@@ -80,6 +80,9 @@ dependencies {
         implementation(libs.mlkit.mediapipe.internal)
     }
 
+    implementation(libs.hoko.blur)
+    implementation(libs.segmentation.selfie)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
