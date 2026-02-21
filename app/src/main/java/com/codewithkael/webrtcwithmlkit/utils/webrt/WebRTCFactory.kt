@@ -16,9 +16,12 @@ import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.toEffectLocation
 import com.codewithkael.webrtcwithmlkit.data.persistence.FilterStorage
 import com.codewithkael.webrtcwithmlkit.data.persistence.WatermarkStorage
 import com.codewithkael.webrtcwithmlkit.utils.imageProcessor.BackgroundScaleMode
+import com.codewithkael.webrtcwithmlkit.utils.loadAndDownscaleToUnderBytes
 import com.codewithkael.webrtcwithmlkit.utils.webrt.IceServers.Companion.getIceServers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.webrtc.AudioTrack
@@ -81,6 +84,8 @@ class WebRTCFactory @Inject constructor(
     @Volatile private var filterPoseDetection: Boolean = false
     @Volatile private var filterReplaceBackground: Boolean = false
 
+    private val factoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     init {
         initPeerConnectionFactory(application)
         reloadWatermarkConfig()
@@ -114,7 +119,9 @@ class WebRTCFactory @Inject constructor(
     fun reloadBackgroundConfig() {
         val cfg = BackgroundStorage.load(application)
         backgroundScaleMode = cfg.scaleMode
-        backgroundBitmap = loadBitmapFromUriOrNull(cfg.uri)
+        factoryScope.launch {
+            backgroundBitmap = loadBitmapFromUriOrNull(cfg.uri)
+        }
     }
 
     // Public API
@@ -156,6 +163,7 @@ class WebRTCFactory @Inject constructor(
         localVideoTrack?.dispose()
         localVideoTrack = null
         effectsPipeline.close()
+        factoryScope.cancel()
     }
 
     private fun startLocalVideo(surface: SurfaceViewRenderer) {
@@ -272,13 +280,13 @@ class WebRTCFactory @Inject constructor(
 
         return bmp ?: BitmapFactory.decodeResource(application.resources, R.drawable.youtube_logo)
     }
-    private fun loadBitmapFromUriOrNull(uriStr: String?): Bitmap? {
+    private val targetMaxSize = 50 * 1024 // 100KB
+
+    private suspend fun loadBitmapFromUriOrNull(uriStr: String?): Bitmap? {
         if (uriStr.isNullOrBlank()) return null
         val uri = uriStr.toUri()
         return runCatching {
-            application.contentResolver.openInputStream(uri).use { input ->
-                if (input != null) BitmapFactory.decodeStream(input) else null
-            }
+            application.contentResolver.loadAndDownscaleToUnderBytes(uri, targetMaxSize)
         }.getOrNull()
     }
 }
