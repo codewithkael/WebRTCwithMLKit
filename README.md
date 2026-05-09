@@ -246,6 +246,7 @@ Instead, it intercepts and modifies every frame before sending it.
 - Image labeling
 - Object detection
 - Pose detection
+- Background Replace (segmentation)
 
 4️⃣ Processed Bitmap is converted back to I420 `VideoFrame`
 
