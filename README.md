@@ -272,6 +272,7 @@ Depending on which toggles are enabled:
 - Image Labeling
 - Object Detection
 - Pose Detection
+- Background Replace 
 
 All filters are controlled through runtime configuration flags.
 
