@@ -85,6 +85,9 @@ class WebRTCFactory @Inject constructor(
     @Volatile private var filterReplaceBackground: Boolean = false
 
     private val factoryScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val processingScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    @Volatile
+    private var isProcessing = false
 
     init {
         initPeerConnectionFactory(application)
@@ -164,6 +167,7 @@ class WebRTCFactory @Inject constructor(
         localVideoTrack = null
         effectsPipeline.close()
         factoryScope.cancel()
+        processingScope.cancel()
     }
 
     private fun startLocalVideo(surface: SurfaceViewRenderer) {
@@ -178,17 +182,25 @@ class WebRTCFactory @Inject constructor(
                 override fun onCapturerStopped() {}
 
                 override fun onFrameCaptured(frame: VideoFrame) {
-                    val yuv = YuvFrame(frame, YuvFrame.PROCESSING_NONE, frame.timestampNs)
-                    val bitmap = yuv.bitmap ?: return
+                    if (isProcessing) return
 
-                    CoroutineScope(Dispatchers.Default).launch {
-                        val processed = runEffects(bitmap)
-                        val videoFrame = BitmapToVideoFrameConverter.convert(
-                            processed, 0, System.nanoTime()
-                        )
-                        withContext(Dispatchers.Main) {
-                            localVideoSource.capturerObserver.onFrameCaptured(videoFrame)
+                    isProcessing = true
+                    val yuv = YuvFrame(frame, YuvFrame.PROCESSING_NONE, frame.timestampNs)
+                    val bitmap = yuv.bitmap
+                    processingScope.launch {
+                        if (bitmap != null) {
+                            val processed = runEffects(bitmap)
+                            val videoFrame = BitmapToVideoFrameConverter.convert(
+                                processed,
+                                0,
+                                System.nanoTime()
+                            )
+                            withContext(Dispatchers.Main) {
+                                localVideoSource.capturerObserver.onFrameCaptured(videoFrame)
+                            }
                         }
+
+                        isProcessing = false
                     }
                 }
             })
